@@ -30,7 +30,12 @@ namespace DemoAPI.Controllers
         public ActionResult<IEnumerable<EmployeeReadDto>> GetAllEmployees() 
         {
             var employeeItems = _repository.GetEmployees();
+            if (employeeItems.Count() == 0)
+            {
+                return NoContent();
+            }
             return Ok(_mapper.Map<IEnumerable<EmployeeReadDto>>(employeeItems));
+
             
         }
 
@@ -57,7 +62,7 @@ namespace DemoAPI.Controllers
 
             var employeeReadDto = _mapper.Map<EmployeeReadDto>(employeeModel);
 
-            return CreatedAtRoute(nameof(GetEmployee), new { id = employeeReadDto.id }, employeeReadDto);
+            return CreatedAtRoute("api/employees", new { id = employeeReadDto.id }, employeeReadDto);
         }
 
         [HttpPut("{id}")]

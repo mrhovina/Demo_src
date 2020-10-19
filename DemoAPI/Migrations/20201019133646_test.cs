@@ -2,7 +2,7 @@
 
 namespace DemoAPI.Migrations
 {
-    public partial class InitialMigration : Migration
+    public partial class test : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -12,10 +12,10 @@ namespace DemoAPI.Migrations
                 {
                     id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    employee_name = table.Column<string>(nullable: true),
-                    employee_salary = table.Column<int>(nullable: false),
-                    employee_age = table.Column<int>(nullable: false),
-                    pictureBase64 = table.Column<string>(nullable: true)
+                    employee_name = table.Column<string>(maxLength: 200, nullable: false),
+                    employee_salary = table.Column<int>(nullable: true),
+                    employee_age = table.Column<int>(nullable: true),
+                    pictureBase64 = table.Column<string>(type: "varchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
