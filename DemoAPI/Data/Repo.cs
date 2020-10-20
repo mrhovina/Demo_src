@@ -48,6 +48,7 @@ namespace DemoAPI.Data
 
         void IRepo.DeleteEmployee(Employee emp)
         {
+
             _context.Employees.Remove(emp);
         }
     }

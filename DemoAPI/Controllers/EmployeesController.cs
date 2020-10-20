@@ -40,7 +40,7 @@ namespace DemoAPI.Controllers
         }
 
         //Get employee by id on api/employees/id
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name ="GetEmployee")]
         public ActionResult<EmployeeReadDto> GetEmployee(int id) 
         {
             var employeeItem = _repository.GetEmployeeById(id);
@@ -62,7 +62,7 @@ namespace DemoAPI.Controllers
 
             var employeeReadDto = _mapper.Map<EmployeeReadDto>(employeeModel);
 
-            return CreatedAtRoute("api/employees", new { id = employeeReadDto.id }, employeeReadDto);
+            return CreatedAtRoute(nameof(GetEmployee), new { id = employeeReadDto.id }, employeeReadDto);
         }
 
         [HttpPut("{id}")]
@@ -89,7 +89,7 @@ namespace DemoAPI.Controllers
             var employeeItem = _repository.GetEmployeeById(id);
             if (employeeItem == null)
             {
-                NotFound();
+                return NotFound();
             }
             _repository.DeleteEmployee(employeeItem);
             _repository.SaveChanges();
