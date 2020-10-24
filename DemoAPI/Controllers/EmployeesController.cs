@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using DemoAPI.Data;
-using DemoAPI.Dtos;
+using CommonSRC.Dtos;
 using DemoAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
