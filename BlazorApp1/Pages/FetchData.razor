@@ -1,0 +1,192 @@
+﻿@page "/fetchdata"
+
+@using Tewr.Blazor.FileReader;
+@using System.IO;
+@inject IHttpClientFactory _clientFactory
+@inject EmployeeDataService2 _employeeData
+@inject IFileReaderService _fileReaderService
+
+<h3>Employee Table</h3>
+
+<button class="btn btn-primary my-4 btn-success" @onclick="() => OnCreateClick()">New Employee</button>
+
+<Modal @ref="modal">
+    <Title>Employee Information</Title>
+    <Body>
+        <div>
+            <EditForm Model="@newEmp" OnValidSubmit="() => OnSaveClick(newEmp)">
+
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <img class="rounded-circle mx-auto img-fluid p-3" src="@("data:image/png;base64,"+newEmp.pictureBase64)" />
+                <input type="file" value="" @ref="fileUpload" @onchange="() => UploadFile()" />
+                <p>
+                    <label>
+                        Full Name:
+                    </label>
+                <p><InputText id=" fullName" @bind-Value="newEmp.employee_name" /></p>
+
+                </p>
+                <p>
+                    <label>
+                        Age:
+                    </label>
+                <p><InputNumber id="age" @bind-Value="newEmp.employee_age" /></p>
+
+                </p>
+                <p>
+                    <label>
+                        Salary:
+                    </label>
+                <p><InputNumber id="salary" @bind-Value="newEmp.employee_salary" /></p>
+                </p>
+                <p>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="() => modal.Close()">Close</button>
+                </p>
+
+            </EditForm>
+        </div>
+    </Body>
+    <Footer>
+    </Footer>
+</Modal>
+@if (err != null)
+{
+    <p><em>There was an error: @err</em></p>
+}
+else if (employees == null)
+{
+    <p><em>Loading ...</em></p>
+}
+else
+{
+
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Salary</th>
+                <th>Age</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var emp in employees)
+            {
+                <tr>
+                    <td>@emp.employee_name</td>
+                    <td>@emp.employee_salary</td>
+                    <td>@emp.employee_age</td>
+                    <td>
+                        <button class="btn btn-danger" @onclick="@(e => OnDeleteClick(emp))">Delete</button>
+                        <button class="btn btn-primary" @onclick="@(e => OnEditClick(emp))">Edit</button>
+                        @*<Button>
+                                <span class="oi oi-delete" aria-hidden="true"></span> Delete
+                            </Button>*@
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code{
+
+    private List<Models.EmployeeViewModel> employees;
+    private EmployeeViewModel newEmp = new EmployeeViewModel();
+    string err;
+    private Modal modal { get; set; }
+    string imageDataUrl = "";
+    string popupDataUrl = "";
+    ElementReference fileUpload;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+
+        //var obj = new Data.EmployeeDataService(_clientFactory);
+        var temp = await _employeeData.GetEmployees();
+        if (temp == null)
+        {
+            err = "No data found here";
+        }
+        else
+        {
+            employees = temp.ToList<Models.EmployeeViewModel>();
+            err = null;
+        }
+
+    }
+
+    public async Task OnDeleteClick(EmployeeViewModel emp)
+    {
+        //var obj = new Data.EmployeeDataService(_clientFactory);
+        var empReturn = await _employeeData.DeleteEmployee(emp);
+        if (empReturn != null)
+        {
+            employees.Remove(empReturn);
+        }
+    }
+
+    private void OnCreateClick()
+    {
+        newEmp = new EmployeeViewModel();
+        newEmp.pictureBase64 = "data:image/png;base64,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";
+        modal.Open();
+    }
+
+    private void OnEditClick(EmployeeViewModel emp)
+    {
+        newEmp.employee_name = emp.employee_name;
+        newEmp.employee_age = emp.employee_age;
+        newEmp.employee_salary = emp.employee_salary;
+        newEmp.pictureBase64 = emp.pictureBase64;
+        newEmp.id = emp.id;
+        modal.Open();
+    }
+
+    private async Task OnSaveClick(EmployeeViewModel emp)
+    {
+        if (emp.id > 0)
+        {
+            var empReturn = await _employeeData.UpdateEmployee(emp);
+
+            if (empReturn == null)
+            {
+                employees.Remove(emp);
+                empReturn = await _employeeData.GetEmployee(emp.id);
+
+                if (empReturn != null)
+                {
+                    employees.Add(empReturn);
+                }
+            }
+            employees = (await _employeeData.GetEmployees()).ToList();
+        }
+        else
+        {
+            var empReturn = await _employeeData.AddEmployee(emp);
+
+            if (empReturn != null)
+            {
+                employees.Add(empReturn);
+            }
+        }
+        modal.Close();
+        StateHasChanged();
+        //var obj = new Data.EmployeeDataService(_clientFactory);
+
+
+    }
+    async void UploadFile()
+    {
+        var file = await _fileReaderService.CreateReference(fileUpload).EnumerateFilesAsync();
+        using (MemoryStream memoryStream = await file.First().CreateMemoryStreamAsync())
+        {
+            newEmp.pictureBase64 = Convert.ToBase64String(memoryStream.ToArray());
+            StateHasChanged();
+        }
+    }
+}
