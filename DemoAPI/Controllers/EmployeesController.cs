@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace DemoAPI.Controllers
 {
@@ -18,83 +19,132 @@ namespace DemoAPI.Controllers
 
         private readonly IRepo _repository;
         private readonly IMapper _mapper;
+        private readonly ILogger _logger;
 
-        public EmployeesController(IRepo repository, IMapper mapper)
+        public EmployeesController(IRepo repository, IMapper mapper, ILogger<EmployeesController> logger)
         {
             _repository = repository;
             _mapper = mapper;
+            _logger = logger;
         }
 
         //Get all employees on api/employees
         [HttpGet]
         public ActionResult<IEnumerable<EmployeeReadDto>> GetAllEmployees() 
         {
-            var employeeItems = _repository.GetEmployees();
-            if (employeeItems.Count() == 0)
+            try
             {
-                return NoContent();
+                var employeeItems = _repository.GetEmployees();
+                if (employeeItems?.Count() == 0)
+                {
+                    return NoContent();
+                }
+                return Ok(_mapper.Map<IEnumerable<EmployeeReadDto>>(employeeItems));
             }
-            return Ok(_mapper.Map<IEnumerable<EmployeeReadDto>>(employeeItems));
-
-            
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return StatusCode(500);
+            }
         }
 
         //Get employee by id on api/employees/id
         [HttpGet("{id}", Name ="GetEmployee")]
         public ActionResult<EmployeeReadDto> GetEmployee(int id) 
         {
-            var employeeItem = _repository.GetEmployeeById(id);
-
-            if (employeeItem != null)
+            try
             {
-                return Ok(_mapper.Map<EmployeeReadDto>(employeeItem));
+                var employeeItem = _repository.GetEmployeeById(id);
+
+                if (employeeItem != null)
+                {
+                    return Ok(_mapper.Map<EmployeeReadDto>(employeeItem));
+                }
+                else return NotFound();
             }
-            else return NotFound();
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return StatusCode(500);
+            }
+
+            
             
         }
         //Post employe on api/employees
         [HttpPost()]
         public ActionResult<EmployeeCreateDto> CreateEmployee(EmployeeCreateDto employeeCreateDto) 
         {
-            var employeeModel = _mapper.Map<Employee>(employeeCreateDto);
-            _repository.CreateEmployee(employeeModel);
-            _repository.SaveChanges();
+            try
+            {
+                var employeeModel = _mapper.Map<Employee>(employeeCreateDto);
+                _repository.CreateEmployee(employeeModel);
+                _repository.SaveChanges();
 
-            var employeeReadDto = _mapper.Map<EmployeeReadDto>(employeeModel);
+                var employeeReadDto = _mapper.Map<EmployeeReadDto>(employeeModel);
 
-            return CreatedAtRoute(nameof(GetEmployee), new { id = employeeReadDto.id }, employeeReadDto);
+                return CreatedAtRoute(nameof(GetEmployee), new { id = employeeReadDto.id }, employeeReadDto);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return StatusCode(500);
+            }
+
         }
 
         [HttpPut("{id}")]
         public ActionResult<EmployeeUpdateDto> UpdateEmployee(int id, EmployeeUpdateDto employeeUpdateDto) 
         {
-            var employeeItem = _repository.GetEmployeeById(id);
-            if (employeeItem == null)
+
+            try
             {
-                NotFound();
+                var employeeItem = _repository.GetEmployeeById(id);
+                if (employeeItem == null)
+                {
+                    NotFound();
+                }
+
+                _mapper.Map(employeeUpdateDto, employeeItem);
+
+                _repository.UpdateEmployee(employeeItem);
+                _repository.SaveChanges();
+
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return StatusCode(500);
             }
 
-            _mapper.Map(employeeUpdateDto, employeeItem);
-
-            _repository.UpdateEmployee(employeeItem);
-            _repository.SaveChanges();
-
-            return NoContent();
+            
         }
 
         [HttpDelete("{id}")]
 
         public ActionResult DeleteEmployee(int id) 
         {
-            var employeeItem = _repository.GetEmployeeById(id);
-            if (employeeItem == null)
-            {
-                return NotFound();
-            }
-            _repository.DeleteEmployee(employeeItem);
-            _repository.SaveChanges();
 
-            return NoContent();
+            try
+            {
+                var employeeItem = _repository.GetEmployeeById(id);
+                if (employeeItem == null)
+                {
+                    return NotFound();
+                }
+                _repository.DeleteEmployee(employeeItem);
+                _repository.SaveChanges();
+
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return StatusCode(500);
+            }
+
+            
         }
     }
 }
