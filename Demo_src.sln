@@ -7,9 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemoAPI", "DemoAPI\DemoAPI.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorApp1", "BlazorApp1\BlazorApp1.csproj", "{5435D7DE-D70C-463C-9DB8-7FDD8E66987F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonSRC", "Common\CommonSRC.csproj", "{6E60DBEA-7644-4C5F-9C9A-E4CEB0E95429}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommonSRC", "Common\CommonSRC.csproj", "{6E60DBEA-7644-4C5F-9C9A-E4CEB0E95429}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebsiteSRC", "WebsiteSRC\WebsiteSRC.csproj", "{22400607-1BC6-44DB-B8D8-41B0E7C9E243}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebsiteSRC", "WebsiteSRC\WebsiteSRC.csproj", "{22400607-1BC6-44DB-B8D8-41B0E7C9E243}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
